@@ -5,64 +5,57 @@ const fs = require('fs');
 chromium.use(stealth);
 
 async function run() {
-  const browser = await chromium.launch({ 
-    headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox'] 
-  });
+  const browser = await chromium.launch({ headless: true });
+  const page = await browser.newPage();
   
-  const context = await browser.newContext({
-    viewport: { width: 1280, height: 800 },
-    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+  // On va surveiller les requêtes réseau pour attraper le JSON de TikTok
+  let trendsData = null;
+  page.on('response', async (response) => {
+    if (response.url().includes('trend/hashtag/list') && response.status() === 200) {
+      console.log('🎯 API TikTok interceptée !');
+      try {
+        const json = await response.json();
+        trendsData = json.data.list;
+      } catch (e) {
+        console.error("Erreur lecture JSON API", e);
+      }
+    }
   });
-
-  const page = await context.newPage();
-  const url = 'https://ads.tiktok.com/business/creativecenter/inspiration/popular/hashtag/pc/en?region=FR';
-  
-  console.log('🚀 Navigation vers TikTok Creative Center...');
 
   try {
-    await page.goto(url, { waitUntil: 'networkidle', timeout: 60000 });
-    
-    // On attend que les titres des hashtags apparaissent (sélecteur générique)
-    await page.waitForSelector('span[class*="CardItem_title"]', { timeout: 30000 });
-
-    // Petit scroll pour simuler un humain et charger les images/données
-    await page.mouse.wheel(0, 500);
-    await page.waitForTimeout(2000);
-
-    const trends = await page.evaluate(() => {
-      // On cherche tous les conteneurs de cartes
-      const cards = Array.from(document.querySelectorAll('[class*="CardItem_container"]'));
-      
-      return cards.slice(0, 15).map(card => {
-        const nameElement = card.querySelector('[class*="CardItem_title"]');
-        const growthElement = card.querySelector('[class*="CardItem_growthPercentage"]');
-        const isNew = card.innerText.includes('New');
-
-        return {
-          tag: nameElement ? nameElement.innerText.replace('#', '').trim() : null,
-          growth: growthElement ? growthElement.innerText.trim() : 'N/A',
-          isNew: isNew
-        };
-      });
+    console.log('🚀 Navigation...');
+    // On va sur la page des hashtags (France)
+    await page.goto('https://ads.tiktok.com/business/creativecenter/inspiration/popular/hashtag/pc/en?region=FR', { 
+      waitUntil: 'networkidle',
+      timeout: 60000 
     });
 
-    const cleanTrends = trends.filter(t => t.tag && t.tag.length > 0);
+    // On attend un peu que les appels API se fassent
+    await page.waitForTimeout(10000);
 
-    const data = {
-      lastUpdate: new Date().toISOString(),
-      trends: cleanTrends
-    };
+    if (trendsData && trendsData.length > 0) {
+      const formattedTrends = trendsData.slice(0, 20).map(item => ({
+        tag: item.hashtag_name,
+        growth: item.rank_diff_last_7_days >= 0 ? `+${item.rank_diff_last_7_days}` : item.rank_diff_last_7_days,
+        isNew: item.is_new,
+        views: item.view_count
+      }));
 
-    if (cleanTrends.length === 0) {
-        throw new Error("Aucune trend trouvée. TikTok a peut-être changé ses sélecteurs.");
+      const finalOutput = {
+        lastUpdate: new Date().toISOString(),
+        trends: formattedTrends
+      };
+
+      fs.writeFileSync('trends.json', JSON.stringify(finalOutput, null, 2));
+      console.log(`✅ Succès : ${formattedTrends.length} trends enregistrées.`);
+    } else {
+      // Si l'interception a échoué, on prend un screenshot pour voir ce qui bloque
+      await page.screenshot({ path: 'debug.png' });
+      throw new Error("L'API n'a pas été capturée. Vérifie debug.png dans les artefacts.");
     }
 
-    fs.writeFileSync('trends.json', JSON.stringify(data, null, 2));
-    console.log(`✅ ${cleanTrends.length} Trends récupérées !`);
-
   } catch (error) {
-    console.error('❌ Erreur:', error.message);
+    console.error('❌ ERREUR :', error.message);
     process.exit(1);
   } finally {
     await browser.close();
