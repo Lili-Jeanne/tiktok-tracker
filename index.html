@@ -1,44 +1,575 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
-    <title>Live Collège Trends</title>
-    <style>
-        .trend-card { border: 1px solid #ddd; padding: 10px; margin: 5px; border-radius: 8px; display: inline-block; font-family: sans-serif; }
-        .growth { color: #00f2ea; font-weight: bold; }
-        .tag { font-size: 1.2em; font-weight: bold; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TikTok Trends Collégiens — Pour les Parents</title>
+  <meta name="description" content="Les tendances TikTok actuelles chez les collégiens (11-15 ans), expliquées pour les parents. Mis à jour automatiquement." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    /* ── RESET & BASE ─────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:         #0a0a0f;
+      --surface:    #13131a;
+      --surface2:   #1c1c28;
+      --border:     rgba(255,255,255,0.08);
+      --tiktok-red: #ff0050;
+      --tiktok-teal:#00f2ea;
+      --accent:     #7c3aed;
+      --text:       #f0f0f8;
+      --muted:      #8888aa;
+      --rising:     #22c55e;
+      --stable:     #facc15;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── GLOW BACKGROUND ───────────────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed;
+      top: -30vh; left: 50%;
+      transform: translateX(-50%);
+      width: 900px; height: 600px;
+      background: radial-gradient(ellipse, rgba(255,0,80,.18) 0%, rgba(0,242,234,.10) 60%, transparent 100%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── HEADER ────────────────────────────────────────────────── */
+    header {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 3rem 1rem 2rem;
+    }
+
+    .logo {
+      display: inline-flex;
+      align-items: center;
+      gap: .6rem;
+      font-size: .85rem;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 1.2rem;
+    }
+
+    .logo span {
+      display: inline-block;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--tiktok-red);
+      animation: pulse 1.6s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%,100% { transform: scale(1); opacity: 1; }
+      50%      { transform: scale(1.5); opacity: .5; }
+    }
+
+    h1 {
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 800;
+      line-height: 1.1;
+      background: linear-gradient(135deg, #fff 30%, var(--tiktok-teal) 70%, var(--tiktok-red) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      margin-top: .8rem;
+      font-size: 1rem;
+      color: var(--muted);
+      max-width: 480px;
+      margin-inline: auto;
+      line-height: 1.6;
+    }
+
+    .meta {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      margin-top: 1.4rem;
+      font-size: .8rem;
+      color: var(--muted);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: .4rem 1rem;
+    }
+
+    /* ── FILTERS ───────────────────────────────────────────────── */
+    .filters {
+      display: flex;
+      gap: .6rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      padding: 1.2rem 1rem 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .filter-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 999px;
+      padding: .45rem 1rem;
+      font-family: inherit;
+      font-size: .82rem;
+      cursor: pointer;
+      transition: all .2s;
+    }
+
+    .filter-btn:hover,
+    .filter-btn.active {
+      background: var(--surface2);
+      border-color: var(--tiktok-teal);
+      color: var(--tiktok-teal);
+    }
+
+    /* ── GRID ──────────────────────────────────────────────────── */
+    #container {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+      gap: 1.2rem;
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1rem 4rem;
+    }
+
+    /* ── CARD ──────────────────────────────────────────────────── */
+    .trend-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform .25s, box-shadow .25s;
+      animation: fadeUp .4s ease both;
+    }
+
+    .trend-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 50px rgba(0,0,0,.5);
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── CARD HEADER ───────────────────────────────────────────── */
+    .card-head {
+      padding: 1.1rem 1.2rem .8rem;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: .8rem;
+    }
+
+    .tag-name {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .tag-name span {
+      color: var(--tiktok-red);
+    }
+
+    .badges {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: .35rem;
+    }
+
+    .badge {
+      font-size: .7rem;
+      font-weight: 600;
+      letter-spacing: .05em;
+      border-radius: 999px;
+      padding: .28rem .7rem;
+      white-space: nowrap;
+    }
+
+    .badge-rising  { background: rgba(34,197,94,.15); color: var(--rising); border: 1px solid rgba(34,197,94,.3); }
+    .badge-stable  { background: rgba(250,204,21,.12); color: var(--stable); border: 1px solid rgba(250,204,21,.3); }
+    .badge-unknown { background: rgba(136,136,170,.1); color: var(--muted); border: 1px solid var(--border); }
+
+    /* ── TREND BAR ─────────────────────────────────────────────── */
+    .trend-bar-wrap {
+      padding: 0 1.2rem .6rem;
+    }
+
+    .trend-label {
+      font-size: .72rem;
+      color: var(--muted);
+      margin-bottom: .35rem;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .trend-bar-bg {
+      height: 5px;
+      background: var(--surface2);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .trend-bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--tiktok-teal), var(--tiktok-red));
+      transition: width 1s cubic-bezier(.4,0,.2,1);
+    }
+
+    /* ── CATEGORY PILL ─────────────────────────────────────────── */
+    .category-pill {
+      margin: 0 1.2rem .85rem;
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      font-size: .75rem;
+      color: var(--muted);
+      background: var(--surface2);
+      border-radius: 999px;
+      padding: .3rem .75rem;
+      border: 1px solid var(--border);
+    }
+
+    /* ── VIDEO ZONE ────────────────────────────────────────────── */
+    .video-zone {
+      margin: 0 1.2rem 1.2rem;
+      border-radius: 12px;
+      overflow: hidden;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      position: relative;
+    }
+
+    /* Ratio 9:16 pour vidéos TikTok */
+    .video-ratio {
+      position: relative;
+      padding-bottom: 177.78%;
+    }
+
+    .video-ratio iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    .no-video {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: .5rem;
+      padding: 2rem;
+      color: var(--muted);
+      font-size: .85rem;
+      min-height: 120px;
+    }
+
+    .no-video svg {
+      opacity: .3;
+      width: 36px;
+      height: 36px;
+    }
+
+    /* Bouton "Voir sur TikTok" */
+    .video-link {
+      display: block;
+      text-align: center;
+      padding: .65rem;
+      font-size: .8rem;
+      font-weight: 600;
+      color: var(--tiktok-teal);
+      text-decoration: none;
+      border-top: 1px solid var(--border);
+      transition: background .2s;
+    }
+
+    .video-link:hover { background: rgba(0,242,234,.06); }
+
+    /* ── STATS ROW ─────────────────────────────────────────────── */
+    .stats-row {
+      display: flex;
+      border-top: 1px solid var(--border);
+      margin-top: auto;
+    }
+
+    .stat {
+      flex: 1;
+      text-align: center;
+      padding: .7rem .5rem;
+      border-right: 1px solid var(--border);
+    }
+
+    .stat:last-child { border-right: none; }
+
+    .stat-val {
+      font-size: .95rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .stat-key {
+      font-size: .65rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-top: .15rem;
+    }
+
+    /* ── LOADING / ERROR ───────────────────────────────────────── */
+    #loading {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 5rem 1rem;
+      gap: 1rem;
+      color: var(--muted);
+    }
+
+    .spinner {
+      width: 42px; height: 42px;
+      border: 3px solid var(--surface2);
+      border-top-color: var(--tiktok-teal);
+      border-right-color: var(--tiktok-red);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── FOOTER ────────────────────────────────────────────────── */
+    footer {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 1.5rem;
+      font-size: .75rem;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── RESPONSIVE ────────────────────────────────────────────── */
+    @media (max-width: 480px) {
+      h1 { font-size: 1.8rem; }
+      #container { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
-    <h1>🔥 Trends TikTok (Direct)</h1>
-    <div id="container">Chargement des tendances...</div>
+
+  <header>
+    <div class="logo"><span></span> Live · Mis à jour toutes les 6h</div>
+    <h1>Trends TikTok<br>chez les Collégiens</h1>
+    <p class="subtitle">Ce que regardent vos enfants en ce moment — décrypté pour les parents.</p>
+    <div class="meta" id="meta">⏳ Chargement…</div>
+  </header>
+
+  <div class="filters" id="filters"></div>
+
+  <div id="loading">
+    <div class="spinner"></div>
+    <span>Chargement des tendances…</span>
+  </div>
+
+  <div id="container" style="display:none;"></div>
+
+  <footer>
+    Sources : <strong>tiktokhashtags.com</strong> + <strong>Google Trends France</strong> — Données actualisées automatiquement via GitHub Actions.<br>
+    Projet éducatif à destination des parents de collégiens.
+  </footer>
+
 <script>
-    const JSON_URL = 'https://raw.githubusercontent.com/Lili-Jeanne/tiktok-tracker/refs/heads/main/trends.json';
+const JSON_URL = 'https://raw.githubusercontent.com/Lili-Jeanne/tiktok-tracker/refs/heads/main/trends.json';
 
-    async function loadTrends() {
-        const container = document.getElementById('container');
-        try {
-            const response = await fetch(JSON_URL);
-            const data = await response.json();
-            
-            container.innerHTML = ''; 
+// ── Formatage des nombres ──────────────────────────────────────────
+function fmt(n) {
+  if (!n) return '—';
+  if (n >= 1e12) return (n / 1e12).toFixed(1) + ' T';
+  if (n >= 1e9)  return (n / 1e9).toFixed(1) + ' Md';
+  if (n >= 1e6)  return (n / 1e6).toFixed(1) + ' M';
+  if (n >= 1e3)  return (n / 1e3).toFixed(0) + ' K';
+  return n.toLocaleString('fr-FR');
+}
 
-            data.trends.forEach(item => {
-                // On gère le cas où growth n'existe pas encore
-                const growthText = item.growth ? `+${item.growth} places` : "En hausse 🔥";
-                
-                container.innerHTML += `
-                    <div class="trend-card" style="border: 2px solid ${item.priority ? '#ff0050' : '#ddd'};">
-                        <div class="tag">#${item.tag}</div>
-                        <div class="growth">📊 ${growthText}</div>
-                        ${item.isNew ? '<b style="color:red">✨ NOUVEAU</b>' : ''}
-                    </div>
-                `;
-            });
-        } catch (e) {
-            container.innerHTML = "Erreur de chargement des données.";
-        }
-    }
-    loadTrends();
+// ── Icône par catégorie ────────────────────────────────────────────
+function catIcon(cat) {
+  const map = {
+    'Argot internet / Brainrot': '🧠',
+    'Gaming':                    '🎮',
+    'Danse / Emote':             '💃',
+    'Vie scolaire':              '🏫',
+    'Contenu viral':             '📱',
+    'Musique':                   '🎵',
+    'Tendance ados':             '✨',
+  };
+  return map[cat] || '🔥';
+}
+
+// ── Rendu d'une card ───────────────────────────────────────────────
+function renderCard(item, idx) {
+  const isRising  = item.isRising === true;
+  const isUnknown = item.trendScore === null;
+  const score     = item.trendScore ?? 0;
+
+  const badgeHtml = isUnknown
+    ? `<span class="badge badge-unknown">❓ Inconnu</span>`
+    : isRising
+      ? `<span class="badge badge-rising">📈 En hausse</span>`
+      : `<span class="badge badge-stable">📊 Stable</span>`;
+
+  // ─ Vidéo ─
+  let videoHtml = '';
+  if (item.exampleVideo?.embedUrl) {
+    videoHtml = `
+      <div class="video-zone">
+        <div class="video-ratio">
+          <iframe
+            src="${item.exampleVideo.embedUrl}"
+            allow="autoplay; clipboard-write; encrypted-media; picture-in-picture"
+            allowfullscreen
+            loading="lazy"
+            title="Exemple TikTok #${item.tag}"></iframe>
+        </div>
+        ${item.exampleVideo.videoUrl
+          ? `<a class="video-link" href="${item.exampleVideo.videoUrl}" target="_blank" rel="noopener">
+               🔗 Voir sur TikTok ${item.exampleVideo.author ? '· ' + item.exampleVideo.author : ''}
+             </a>`
+          : ''}
+      </div>`;
+  } else {
+    videoHtml = `
+      <div class="video-zone">
+        <div class="no-video">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M15 10l4.553-2.276A1 1 0 0121 8.723v6.554a1 1 0 01-1.447.894L15 14M4 8a2 2 0 00-2 2v4a2 2 0 002 2h8a2 2 0 002-2v-4a2 2 0 00-2-2H4z"/>
+          </svg>
+          <span>Vidéo exemple non disponible</span>
+          <a href="https://www.tiktok.com/tag/${item.tag}" target="_blank" rel="noopener"
+             style="color:var(--tiktok-teal);font-size:.8rem;">Voir sur TikTok →</a>
+        </div>
+      </div>`;
+  }
+
+  return `
+    <div class="trend-card" data-category="${item.category || ''}" style="animation-delay:${idx * 60}ms">
+      <div class="card-head">
+        <div class="tag-name"><span>#</span>${item.tag}</div>
+        <div class="badges">${badgeHtml}</div>
+      </div>
+
+      <div class="trend-bar-wrap">
+        <div class="trend-label">
+          <span>Popularité actuelle (Google Trends)</span>
+          <span>${isUnknown ? '?' : score}/100</span>
+        </div>
+        <div class="trend-bar-bg">
+          <div class="trend-bar-fill" style="width:${score}%"></div>
+        </div>
+      </div>
+
+      <div class="category-pill">
+        ${catIcon(item.category)} ${item.category || 'Tendance ados'}
+      </div>
+
+      ${videoHtml}
+
+      <div class="stats-row">
+        <div class="stat">
+          <div class="stat-val">${fmt(item.views)}</div>
+          <div class="stat-key">Vues totales</div>
+        </div>
+        <div class="stat">
+          <div class="stat-val">${fmt(item.posts)}</div>
+          <div class="stat-key">Vidéos postées</div>
+        </div>
+        <div class="stat">
+          <div class="stat-val">${isUnknown ? '—' : score}</div>
+          <div class="stat-key">Score 30j</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ── Filtres ────────────────────────────────────────────────────────
+let allTrends  = [];
+let activeFilter = 'Tous';
+
+function applyFilter(cat) {
+  activeFilter = cat;
+  document.querySelectorAll('.filter-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.cat === cat);
+  });
+  const container = document.getElementById('container');
+  const filtered = cat === 'Tous'
+    ? allTrends
+    : allTrends.filter(t => t.category === cat);
+  container.innerHTML = filtered.map((t, i) => renderCard(t, i)).join('');
+}
+
+// ── Chargement principal ───────────────────────────────────────────
+async function loadTrends() {
+  const container = document.getElementById('container');
+  const loading   = document.getElementById('loading');
+  const metaEl    = document.getElementById('meta');
+  const filtersEl = document.getElementById('filters');
+
+  try {
+    const res  = await fetch(JSON_URL + '?t=' + Date.now());
+    const data = await res.json();
+
+    allTrends = data.trends || [];
+
+    // Meta
+    const d = new Date(data.lastUpdate);
+    metaEl.textContent = `🕐 Mis à jour le ${d.toLocaleDateString('fr-FR')} à ${d.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'})}`;
+
+    // Filtres
+    const cats = ['Tous', ...new Set(allTrends.map(t => t.category).filter(Boolean))];
+    filtersEl.innerHTML = cats.map(cat =>
+      `<button class="filter-btn ${cat === 'Tous' ? 'active' : ''}" data-cat="${cat}">${cat}</button>`
+    ).join('');
+    filtersEl.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => applyFilter(btn.dataset.cat));
+    });
+
+    loading.style.display = 'none';
+    container.style.display = 'grid';
+    applyFilter('Tous');
+
+  } catch (e) {
+    loading.innerHTML = `<p style="color:var(--tiktok-red)">❌ Impossible de charger les données.<br><small>${e.message}</small></p>`;
+  }
+}
+
+loadTrends();
 </script>
 </body>
 </html>
