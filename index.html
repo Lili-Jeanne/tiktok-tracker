@@ -254,7 +254,26 @@
       border: 1px solid var(--border);
     }
 
-    /* ── VIDEO ZONE ────────────────────────────────────────────── */
+    /* ── EXPLICATION PARENTS ───────────────────────────────────── */
+    .explanation {
+      margin: 0 1.2rem .85rem;
+      padding: .75rem 1rem;
+      background: rgba(124,58,237,.08);
+      border: 1px solid rgba(124,58,237,.2);
+      border-radius: 10px;
+      font-size: .82rem;
+      line-height: 1.55;
+      color: #c4b5fd;
+    }
+
+    .explanation strong {
+      display: block;
+      font-size: .7rem;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: #a78bfa;
+      margin-bottom: .3rem;
+    }
     .video-zone {
       margin: 0 1.2rem 1.2rem;
       border-radius: 12px;
@@ -445,6 +464,18 @@ function renderCard(item, idx) {
       ? `<span class="badge badge-rising">📈 En hausse</span>`
       : `<span class="badge badge-stable">📊 Stable</span>`;
 
+  const aiConf = item.aiConfidence;
+  const aiBadge = aiConf !== null && aiConf !== undefined
+    ? `<span class="badge ${aiConf >= 75 ? 'badge-rising' : aiConf >= 50 ? 'badge-stable' : 'badge-unknown'}">
+        🤖 IA ${aiConf}%
+       </span>`
+    : '';
+
+  // ─ Explication pour les parents ─
+  const explanationHtml = item.explanation
+    ? `<div class="explanation"><strong>💡 Pour les parents</strong>${item.explanation}</div>`
+    : '';
+
   // ─ Vidéo ─
   let videoHtml = '';
   if (item.exampleVideo?.embedUrl) {
@@ -482,7 +513,7 @@ function renderCard(item, idx) {
     <div class="trend-card" data-category="${item.category || ''}" style="animation-delay:${idx * 60}ms">
       <div class="card-head">
         <div class="tag-name"><span>#</span>${item.tag}</div>
-        <div class="badges">${badgeHtml}</div>
+        <div class="badges">${badgeHtml}${aiBadge}</div>
       </div>
 
       <div class="trend-bar-wrap">
@@ -498,6 +529,8 @@ function renderCard(item, idx) {
       <div class="category-pill">
         ${catIcon(item.category)} ${item.category || 'Tendance ados'}
       </div>
+
+      ${explanationHtml}
 
       ${videoHtml}
 

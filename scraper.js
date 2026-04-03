@@ -16,21 +16,71 @@ const GT_BATCH_SIZE = 4;   // Requêtes Google Trends en parallèle (anti-thrott
 const GT_BATCH_DELAY_MS = 600; // Délai entre chaque batch GT (ms)
 
 // ---------------------------------------------------------------------------
-// MOTS-CLÉS "GRAINE" — ce sont les termes qu'on va taper dans la recherche
-// tiktokhashtags.com pour récolter les hashtags connexes utilisés par les ados.
-// On cible les plus spécifiques à la culture collégienne.
+// SEEDS DE SECOURS — utilisés si Gemini est indisponible
 // ---------------------------------------------------------------------------
-// Seeds réduits aux 15 plus représentatifs pour limiter le temps de scraping
-const SEED_KEYWORDS = [
-  // Brainrot / argot internet
+const FALLBACK_SEEDS = [
   'skibidi', 'sigma', 'rizz', 'npc', 'aura', 'mewing', 'pookie',
-  // Gaming
   'fortnite', 'roblox', 'freefire', 'brawlstars',
-  // Danses / emotes
-  'phonk', 'drift',
-  // Contenu viral
-  'pov', 'ohio',
+  'phonk', 'drift', 'pov', 'ohio',
 ];
+
+// ---------------------------------------------------------------------------
+// GÉNÉRATION DES MOTS-CLÉS PAR IA
+// Demande à Gemini quels hashtags / termes sont utilisés en ce moment
+// par les collégiens français (11-15 ans). Résultat = liste de ~20 mots-clés.
+// ---------------------------------------------------------------------------
+async function generateSeedKeywords() {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    console.warn('   ⚠️  GEMINI_API_KEY absente — utilisation des seeds de secours.');
+    return FALLBACK_SEEDS;
+  }
+
+  const today = new Date().toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+
+  const prompt = `Tu es un expert de la culture internet et des tendances TikTok des collégiens français (11-15 ans), en ${today}.
+
+Génère une liste de 20 mots-clés / hashtags TikTok qui sont en ce moment les plus utilisés par les collégiens français.
+Inclus : argot brainrot, gaming, memes viraux, danses, termes musicaux ados, etc.
+Les termes doivent être courts (1 mot ou expression collée), en minuscules, sans #.
+Préfère les termes qui donnent le plus de hashtags connexes sur TikTok.
+
+Réponds UNIQUEMENT avec un tableau JSON valide de chaînes, sans markdown :
+["terme1","terme2",...]`;
+
+  try {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { temperature: 0.4 },
+        }),
+      }
+    );
+    const data = await res.json();
+    const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    const jsonMatch = raw.match(/\[.*?\]/s);
+    if (!jsonMatch) throw new Error('Pas de JSON dans la réponse');
+
+    const keywords = JSON.parse(jsonMatch[0]);
+    if (!Array.isArray(keywords) || keywords.length === 0) throw new Error('Liste vide');
+
+    // Nettoyage : minuscules, sans #, uniquement alphanumérique
+    const cleaned = keywords
+      .map(k => String(k).toLowerCase().replace(/^#/, '').trim())
+      .filter(k => k.length > 1 && k.length < 30);
+
+    console.log(`   🤖 Gemini a généré ${cleaned.length} seeds : ${cleaned.slice(0, 8).join(', ')}…`);
+    return cleaned;
+
+  } catch (e) {
+    console.warn(`   ⚠️  Erreur génération seeds (${e.message}) — seeds de secours utilisés.`);
+    return FALLBACK_SEEDS;
+  }
+}
 
 // ---------------------------------------------------------------------------
 // CATÉGORIES pour les parents
@@ -117,10 +167,75 @@ async function scrapeKeywordPage(page, keyword) {
 }
 
 // ---------------------------------------------------------------------------
-// ÉTAPE 2 — Google Trends (90 jours, France) → détecte si le hashtag EST
-// populaire sur les 30 DERNIERS jours (et pas juste historiquement).
+// ÉTAPE 2a — Gemini AI : filtre principal
+// Vérifie lesquels sont vraiment des trends collégiens ET génère des explications
+// pour les parents. Envoi en une seule requête batch → rapide.
 // ---------------------------------------------------------------------------
-async function analyzeGoogleTrends(keyword) {
+async function classifyWithAI(candidates) {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    console.warn('   ⚠️  GEMINI_API_KEY absente — classification IA ignorée (tous gardés).');
+    // Sans clé, on retourne tous les candidats comme "valides" mais sans explication
+    return Object.fromEntries(candidates.map(c => [c.tag, { isCollegeTrend: true, confidence: 50, explanation: null }]));
+  }
+
+  const tagList = candidates.map(c => c.tag).join(', ');
+
+  const prompt = `Tu es un expert de la culture internet et des tendances TikTok chez les adolescents français de 11 à 15 ans (collégiens).
+
+Je te donne une liste de hashtags TikTok. Pour chacun :
+1. Détermine si ce hashtag est actuellement utilisé ou apprécié par les collégiens français (pas juste en général, mais spécifiquement dans la tranche 11-15 ans en 2024-2025).
+2. Si oui, rédige en français une explication courte (1-2 phrases max) destinée aux parents qui ne connaissent pas ce terme. Commence par "Ce hashtag", "Tendance où" ou "Mème où".
+3. Donne une confiance de 0 à 100 sur le fait que ce soit une vraie trend collégienne active.
+
+Réponds UNIQUEMENT en JSON valide, sans markdown, format exact :
+[{"tag":"nom","isCollegeTrend":true,"confidence":85,"explanation":"..."},...]
+
+Hashtags à analyser : ${tagList}`;
+
+  try {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { temperature: 0.2 },
+        }),
+      }
+    );
+
+    const data = await res.json();
+    const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+    // Extrait le JSON même si Gemini ajoute du texte autour
+    const jsonMatch = raw.match(/\[.*\]/s);
+    if (!jsonMatch) throw new Error('Pas de JSON dans la réponse Gemini');
+
+    const parsed = JSON.parse(jsonMatch[0]);
+    const map = {};
+    for (const item of parsed) {
+      if (item.tag) map[item.tag.toLowerCase()] = {
+        isCollegeTrend: item.isCollegeTrend === true,
+        confidence: item.confidence ?? 50,
+        explanation: item.explanation || null,
+      };
+    }
+    return map;
+
+  } catch (e) {
+    console.warn(`   ⚠️  Erreur Gemini: ${e.message} — tous les candidats seront gardés.`);
+    return Object.fromEntries(candidates.map(c => [c.tag, { isCollegeTrend: true, confidence: 50, explanation: null }]));
+  }
+}
+
+// ---------------------------------------------------------------------------
+// ÉTAPE 2b — Google Trends (signal secondaire, non bloquant)
+// Donne un trendScore 0-100 pour l'affichage (barre de progression).
+// Ne filtre plus — sert juste à trier et afficher.
+// ---------------------------------------------------------------------------
+async function getGoogleTrendScore(keyword) {
   try {
     const raw = await googleTrends.interestOverTime({
       keyword,
@@ -140,28 +255,18 @@ async function analyzeGoogleTrends(keyword) {
     const scorePrev60 = avg(values.slice(0, 2 * third));
     const isRising = score30d >= MIN_TREND_SCORE_30D &&
       (scorePrev60 === 0 || score30d >= scorePrev60 * RISING_RATIO);
-    const isActive = score30d >= MIN_TREND_SCORE_30D;
-
-    return {
-      score30d: Math.round(score30d),
-      scorePrev60: Math.round(scorePrev60),
-      isRising,
-      isActive,
-      isTrending: isActive,
-    };
+    return { score30d: Math.round(score30d), isRising };
   } catch (e) {
     return null;
   }
 }
 
-// Exécute Google Trends en parallèle par batch pour réduire le temps total
-async function analyzeGoogleTrendsBatch(items) {
+async function getGoogleTrendsBatch(items) {
   const results = [];
   for (let i = 0; i < items.length; i += GT_BATCH_SIZE) {
     const batch = items.slice(i, i + GT_BATCH_SIZE);
-    const batchResults = await Promise.all(batch.map(item => analyzeGoogleTrends(item.tag)));
+    const batchResults = await Promise.all(batch.map(item => getGoogleTrendScore(item.tag)));
     batchResults.forEach((gt, j) => results.push({ item: batch[j], gt }));
-    // Petite pause entre les batchs pour ne pas se faire bloquer par Google
     if (i + GT_BATCH_SIZE < items.length) {
       await new Promise(r => setTimeout(r, GT_BATCH_DELAY_MS));
     }
@@ -227,12 +332,16 @@ async function run() {
   });
 
   try {
-    // ── ÉTAPE 1 : Scraping de chaque mot-clé sur tiktokhashtags.com ─────────
-    console.log(`\n🔍 ÉTAPE 1 — Recherche de ${SEED_KEYWORDS.length} mots-clés sur tiktokhashtags.com...`);
+    // ── ÉTAPE 0 : Génération des mots-clés de recherche par IA ───────────────
+    console.log('\n🤖 ÉTAPE 0 — Génération des mots-clés de recherche par Gemini AI...');
+    const seedKeywords = await generateSeedKeywords();
+
+    // ── ÉTAPE 1 : Scraping de chaque mot-clé sur tiktokhashtags.com ──────────
+    console.log(`\n🔍 ÉTAPE 1 — Recherche de ${seedKeywords.length} mots-clés sur tiktokhashtags.com...`);
     const seen = new Set();
     const pool = []; // { tag, views, posts }
 
-    for (const kw of SEED_KEYWORDS) {
+    for (const kw of seedKeywords) {
       process.stdout.write(`   🌐 #${kw} ... `);
       const { self, related } = await scrapeKeywordPage(page, kw);
 
@@ -264,43 +373,52 @@ async function run() {
 
     console.log(`\n   📦 Pool total dédupliqué : ${pool.length} hashtags candidats`);
 
-    // ── ÉTAPE 2 : Google Trends en parallèle (batchs de 4) ──────────────────
-    // Pré-filtre : on limite le pool aux MAX_POOL_FOR_GT candidats les plus vus
-    // pour éviter d'envoyer 300 requêtes à Google.
-    const poolForGT = pool
+    // ── ÉTAPE 2a : Gemini AI — filtre principal ──────────────────────────────
+    // Limite le pool aux MAX_POOL_FOR_GT plus vus avant d'appeler l'IA
+    const poolForAI = pool
       .sort((a, b) => (b.views || 0) - (a.views || 0))
       .slice(0, MAX_POOL_FOR_GT);
 
-    console.log(`\n📈 ÉTAPE 2 — Google Trends (batchs de ${GT_BATCH_SIZE}, ${poolForGT.length} candidats)...`);
-    console.log(`   Seuil : score 30j ≥ ${MIN_TREND_SCORE_30D}/100`);
+    console.log(`\n🤖 ÉTAPE 2a — Classification Gemini AI (${poolForAI.length} candidats)...`);
+    const aiResults = await classifyWithAI(poolForAI);
 
-    const batchResults = await analyzeGoogleTrendsBatch(poolForGT);
-    const results = [];
-
-    for (const { item, gt } of batchResults) {
-      if (gt === null) {
-        console.log(`   ⚠️  #${item.tag} → données indisponibles (gardé)`);
-        results.push({
-          tag: item.tag, views: item.views || null, posts: item.posts || null,
-          trendScore: null, isRising: null, category: getCategory(item.tag),
-        });
-      } else if (gt.isTrending) {
-        console.log(`   ✅ #${item.tag} → ${gt.score30d}/100 ${gt.isRising ? '📈' : '📊'}`);
-        results.push({
-          tag: item.tag, views: item.views || null, posts: item.posts || null,
-          trendScore: gt.score30d, isRising: gt.isRising, category: getCategory(item.tag),
-        });
-      } else {
-        console.log(`   ⛔ #${item.tag} → ${gt.score30d}/100 (ignoré)`);
+    const aiFiltered = poolForAI.filter(item => {
+      const ai = aiResults[item.tag.toLowerCase()];
+      const keep = !ai || ai.isCollegeTrend === true;
+      if (ai) {
+        const icon = ai.isCollegeTrend ? '✅' : '⛔';
+        console.log(`   ${icon} #${item.tag} (confiance: ${ai.confidence ?? '?'}/100)${ai.explanation ? ' — ' + ai.explanation.slice(0, 60) + '…' : ''}`);
       }
-    }
+      return keep;
+    });
 
-    console.log(`\n   ✅ ${results.length} hashtags actifs chez les collégiens (30j)`);
+    console.log(`\n   → ${aiFiltered.length} trends collégiens validés par l'IA`);
 
-    // Tri : en hausse d'abord, puis par score décroissant
+    // ── ÉTAPE 2b : Google Trends — signal secondaire (trendScore uniquement) ──
+    console.log(`\n📈 ÉTAPE 2b — Google Trends (signal secondaire, batchs de ${GT_BATCH_SIZE})...`);
+    const gtBatch = await getGoogleTrendsBatch(aiFiltered);
+
+    const results = aiFiltered.map(item => {
+      const gtData = gtBatch.find(r => r.item.tag === item.tag)?.gt || null;
+      const ai = aiResults[item.tag.toLowerCase()];
+      console.log(`   📊 #${item.tag} → score GT: ${gtData ? gtData.score30d : '—'}/100`);
+      return {
+        tag: item.tag,
+        views: item.views || null,
+        posts: item.posts || null,
+        trendScore: gtData?.score30d ?? null,
+        isRising: gtData?.isRising ?? null,
+        aiConfidence: ai?.confidence ?? null,
+        explanation: ai?.explanation ?? null,
+        category: getCategory(item.tag),
+      };
+    });
+
+    // Tri : confiance IA décroissante, puis score GT
     results.sort((a, b) => {
-      if (a.isRising && !b.isRising) return -1;
-      if (!a.isRising && b.isRising) return 1;
+      const ca = a.aiConfidence ?? 50;
+      const cb = b.aiConfidence ?? 50;
+      if (cb !== ca) return cb - ca;
       return (b.trendScore ?? 0) - (a.trendScore ?? 0);
     });
 
@@ -323,9 +441,9 @@ async function run() {
 
     const output = {
       lastUpdate: new Date().toISOString(),
-      sources: ['tiktokhashtags.com (recherche par mot-clé)', 'Google Trends FR (90j)', 'TikTok (vidéo exemple)'],
+      sources: ['tiktokhashtags.com', 'Gemini AI (filtre principal)', 'Google Trends FR 90j (score)', 'TikTok (vidéo)'],
       filteredForCollege: true,
-      methodology: 'Hashtags connexes aux mots-clés collégiens, actifs sur les 30 derniers jours en France',
+      methodology: 'Hashtags connexes aux mots-clés collégiens, validés par Gemini AI, scorés par Google Trends',
       trends: finalTrends,
     };
 

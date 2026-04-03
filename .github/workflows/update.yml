@@ -16,6 +16,8 @@ jobs:
       - run: npx playwright install chromium
       - name: Run Scraper
         run: node scraper.js
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       - name: Commit and Push
         run: |
           git config --local user.email "action@github.com"
