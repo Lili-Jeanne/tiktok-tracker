@@ -1,17 +1,27 @@
 {
-  "lastUpdate": "2026-04-03T09:46:10.230Z",
+  "lastUpdate": "2026-04-03T09:54:09.145Z",
+  "filteredForCollege": true,
   "trends": [
     {
       "tag": "aprilfools",
-      "priority": 0
+      "growth": null,
+      "isNew": false,
+      "category": "Tendance générale",
+      "isGeneral": true
     },
     {
       "tag": "april",
-      "priority": 0
+      "growth": null,
+      "isNew": false,
+      "category": "Tendance générale",
+      "isGeneral": true
     },
     {
       "tag": "aprilfoolsday",
-      "priority": 0
+      "growth": null,
+      "isNew": false,
+      "category": "Tendance générale",
+      "isGeneral": true
     }
   ]
 }
