@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Live Collège Trends</title>
+    <style>
+        .trend-card { border: 1px solid #ddd; padding: 10px; margin: 5px; border-radius: 8px; display: inline-block; font-family: sans-serif; }
+        .growth { color: #00f2ea; font-weight: bold; }
+        .tag { font-size: 1.2em; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>🔥 Trends TikTok (Direct)</h1>
+    <div id="container">Chargement des tendances...</div>
+
+    <script>
+        // Remplace par TON_USER et TON_REPO
+        const JSON_URL = 'https://raw.githubusercontent.com/VOTRE_NOM_UTILISATEUR/VOTRE_REPO/main/trends.json';
+
+        async function loadTrends() {
+            try {
+                const response = await fetch(JSON_URL);
+                const data = await response.json();
+                const container = document.getElementById('container');
+                container.innerHTML = '';
+
+                data.trends.forEach(item => {
+                    container.innerHTML += `
+                        <div class="trend-card">
+                            <div class="tag">#${item.tag}</div>
+                            <div class="growth">↗ ${item.growth}</div>
+                            ${item.isNew ? '✨ NOUVEAU' : ''}
+                        </div>
+                    `;
+                });
+            } catch (e) {
+                console.error("Erreur de chargement", e);
+            }
+        }
+        loadTrends();
+    </script>
+</body>
+</html>
