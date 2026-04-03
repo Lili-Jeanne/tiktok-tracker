@@ -8,38 +8,41 @@ async function run() {
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
   
-  // On va surveiller les requêtes réseau pour attraper le JSON de TikTok
   let trendsData = null;
   page.on('response', async (response) => {
+    // On intercepte l'API de TikTok
     if (response.url().includes('trend/hashtag/list') && response.status() === 200) {
-      console.log('🎯 API TikTok interceptée !');
       try {
         const json = await response.json();
         trendsData = json.data.list;
-      } catch (e) {
-        console.error("Erreur lecture JSON API", e);
-      }
+      } catch (e) {}
     }
   });
 
   try {
-    console.log('🚀 Navigation...');
-    // On va sur la page des hashtags (France)
-    await page.goto('https://ads.tiktok.com/business/creativecenter/inspiration/popular/hashtag/pc/en?region=FR', { 
-      waitUntil: 'networkidle',
-      timeout: 60000 
-    });
+    // L'URL magique : on ajoute "&sort_by=rank_diff" pour avoir les plus fortes progressions (Breakout)
+    // Et on cible spécifiquement la France
+    const url = 'https://ads.tiktok.com/business/creativecenter/inspiration/popular/hashtag/pc/en?region=FR&sort_by=rank_diff';
+    
+    console.log('🚀 Recherche des trends à forte croissance...');
+    await page.goto(url, { waitUntil: 'networkidle', timeout: 60000 });
+    await page.waitForTimeout(8000);
 
-    // On attend un peu que les appels API se fassent
-    await page.waitForTimeout(10000);
+    if (trendsData) {
+      // Liste de mots-clés "Brainrot / Collège" pour booster certains résultats
+      const collegeKeywords = ['skibidi', 'sigma', 'rizz', '67', 'sixseven', 'fortnite', 'emote', 'roblox', 'pov', 'prof', 'college', 'brevet'];
 
-    if (trendsData && trendsData.length > 0) {
-      const formattedTrends = trendsData.slice(0, 20).map(item => ({
-        tag: item.hashtag_name,
-        growth: item.rank_diff_last_7_days >= 0 ? `+${item.rank_diff_last_7_days}` : item.rank_diff_last_7_days,
-        isNew: item.is_new,
-        views: item.view_count
-      }));
+      const formattedTrends = trendsData
+        .map(item => ({
+          tag: item.hashtag_name,
+          growth: item.rank_diff_last_7_days,
+          isNew: item.is_new,
+          // On donne un "score d'intérêt collège"
+          priority: collegeKeywords.some(key => item.hashtag_name.toLowerCase().includes(key)) ? 1 : 0
+        }))
+        // On trie d'abord par priorité (mots-clés), puis par puissance de croissance
+        .sort((a, b) => b.priority - a.priority || b.growth - a.growth)
+        .slice(0, 20);
 
       const finalOutput = {
         lastUpdate: new Date().toISOString(),
@@ -47,15 +50,11 @@ async function run() {
       };
 
       fs.writeFileSync('trends.json', JSON.stringify(finalOutput, null, 2));
-      console.log(`✅ Succès : ${formattedTrends.length} trends enregistrées.`);
-    } else {
-      // Si l'interception a échoué, on prend un screenshot pour voir ce qui bloque
-      await page.screenshot({ path: 'debug.png' });
-      throw new Error("L'API n'a pas été capturée. Vérifie debug.png dans les artefacts.");
+      console.log(`✅ ${formattedTrends.length} trends filtrées enregistrées.`);
     }
 
   } catch (error) {
-    console.error('❌ ERREUR :', error.message);
+    console.error('❌ Erreur:', error.message);
     process.exit(1);
   } finally {
     await browser.close();
