@@ -1,27 +1,50 @@
 {
-  "lastUpdate": "2026-04-03T09:54:09.145Z",
+  "lastUpdate": "2026-04-03T10:11:28.690Z",
+  "source": "tiktokhashtags.com",
   "filteredForCollege": true,
+  "minViewsThreshold": 1000000,
   "trends": [
     {
-      "tag": "aprilfools",
-      "growth": null,
-      "isNew": false,
-      "category": "Tendance générale",
-      "isGeneral": true
+      "tag": "asmr",
+      "views": 51,
+      "posts": 78259,
+      "category": "Tendance ados",
+      "isPopular": true
     },
     {
-      "tag": "april",
-      "growth": null,
-      "isNew": false,
-      "category": "Tendance générale",
-      "isGeneral": true
+      "tag": "stitch",
+      "views": 49,
+      "posts": 10816,
+      "category": "Tendance ados",
+      "isPopular": true
     },
     {
-      "tag": "aprilfoolsday",
-      "growth": null,
-      "isNew": false,
-      "category": "Tendance générale",
-      "isGeneral": true
+      "tag": "xuhuong",
+      "views": 48,
+      "posts": 77786,
+      "category": "Argot internet / Brainrot",
+      "isPopular": true
+    },
+    {
+      "tag": "collagestitch",
+      "views": 10,
+      "posts": 10886,
+      "category": "Tendance ados",
+      "isPopular": true
+    },
+    {
+      "tag": "maestridelpov",
+      "views": 8,
+      "posts": 26746,
+      "category": "Contenu viral",
+      "isPopular": true
+    },
+    {
+      "tag": "duet",
+      "views": 6,
+      "posts": 13051,
+      "category": "Contenu viral",
+      "isPopular": true
     }
   ]
 }
