@@ -1,12 +1,19 @@
 const { chromium } = require('playwright-extra');
 const stealth = require('puppeteer-extra-plugin-stealth')();
+const googleTrends = require('google-trends-api');
 const fs = require('fs');
 
 chromium.use(stealth);
 
 // ---------------------------------------------------------------------------
+// CONFIG
+// ---------------------------------------------------------------------------
+const MIN_VIEWS        = 500_000;   // Vues historiques minimum (filtre permissif)
+const MIN_TREND_SCORE  = 10;        // Score Google Trends minimum sur 7 jours (0-100)
+const MAX_HASHTAGS     = 15;        // Nombre max à vérifier (pour limiter le temps)
+
+// ---------------------------------------------------------------------------
 // MOTS-CLÉS COLLÉGIENS (11-15 ans) — filtre strict
-// Un hashtag doit contenir AU MOINS UN de ces termes pour être gardé.
 // ---------------------------------------------------------------------------
 const COLLEGE_KEYWORDS = [
   // Argot "brainrot" & internet slang
@@ -16,7 +23,7 @@ const COLLEGE_KEYWORDS = [
   'cringe', 'sus', 'glaze', 'glazing', 'mewing', 'looksmax', 'looksmaxing',
   'glow', 'glowup', 'mogging', 'pookie', 'twin', 'bestie', 'ate',
 
-  // Gaming (très présent chez les collégiens)
+  // Gaming
   'fortnite', 'roblox', 'minecraft', 'freefire', 'brawlstars', 'brawl',
   'clashofclans', 'clashroyale', 'valorant', 'fncs', 'cod', 'warzone',
   'genshin', 'honkai', 'pubg', 'apex', 'overwatch', 'mario', 'nintendo',
@@ -52,18 +59,11 @@ const COLLEGE_KEYWORDS = [
 ];
 
 // ---------------------------------------------------------------------------
-// SEUIL DE POPULARITÉ : on ne garde que les hashtags avec assez de vues.
-// Ajustable selon les résultats.
-// ---------------------------------------------------------------------------
-const MIN_VIEWS = 1_000_000; // 1 million de vues minimum
-
-// ---------------------------------------------------------------------------
-// CATÉGORIES pour aider les parents
+// CATÉGORIES pour les parents
 // ---------------------------------------------------------------------------
 function getCategory(tag) {
   const t = tag.toLowerCase();
-  const check = (keywords) => keywords.some(k => t.includes(k));
-
+  const check = (kw) => kw.some(k => t.includes(k));
   if (check(['skibidi','sigma','rizz','gyatt','npc','fanum','delulu','aura','alpha','mewing','looksmax','mogging','glazing','sus','cap','nocap','bussin','goat','ong','based','cringe','pookie'])) return 'Argot internet / Brainrot';
   if (check(['fortnite','roblox','minecraft','freefire','brawl','clash','valorant','cod','genshin','pubg','apex','overwatch','pokemon','mario','gaming','gamer','streamer','twitch'])) return 'Gaming';
   if (check(['emote','dance','choreo','shuffle','griddy','phonk','drift'])) return 'Danse / Emote';
@@ -74,25 +74,26 @@ function getCategory(tag) {
 }
 
 // ---------------------------------------------------------------------------
-// PARSE des nombres (ex: "177.9K", "2.3M", "1,500,000")
+// PARSE des nombres : "20.5 Trillion", "2 Billion", "500 Million", "1.2K"…
 // ---------------------------------------------------------------------------
 function parseCount(str) {
   if (!str) return 0;
   const s = str.trim().replace(/,/g, '');
   const num = parseFloat(s);
   if (isNaN(num)) return 0;
-  if (s.endsWith('B') || s.toLowerCase().includes('billion')) return Math.round(num * 1_000_000_000);
-  if (s.endsWith('M') || s.toLowerCase().includes('million')) return Math.round(num * 1_000_000);
-  if (s.endsWith('K') || s.toLowerCase().includes('thousand')) return Math.round(num * 1_000);
+  const low = s.toLowerCase();
+  if (low.includes('trillion')) return Math.round(num * 1_000_000_000_000);
+  if (low.includes('billion')  || low.endsWith('b')) return Math.round(num * 1_000_000_000);
+  if (low.includes('million')  || low.endsWith('m')) return Math.round(num * 1_000_000);
+  if (low.includes('thousand') || low.endsWith('k')) return Math.round(num * 1_000);
   return Math.round(num);
 }
 
 // ---------------------------------------------------------------------------
-// ÉTAPE 1 : Récupère les 100 hashtags les plus populaires sur tiktokhashtags.com
+// ÉTAPE 1 — tiktokhashtags.com/best-hashtags.php → liste brute
 // ---------------------------------------------------------------------------
 async function getBestHashtags(page) {
-  console.log('\n📋 ÉTAPE 1 — Récupération des hashtags populaires (tiktokhashtags.com)...');
-  
+  console.log('\n📋 ÉTAPE 1 — Scraping tiktokhashtags.com/best-hashtags.php...');
   try {
     await page.goto('https://tiktokhashtags.com/best-hashtags.php', {
       waitUntil: 'domcontentloaded',
@@ -106,81 +107,100 @@ async function getBestHashtags(page) {
       rows.forEach(row => {
         const cells = row.querySelectorAll('td');
         if (cells.length < 2) return;
-        // La 2ème colonne contient le lien avec le nom du hashtag
         const link = cells[1]?.querySelector('a');
-        const name = link?.textContent?.trim()?.replace(/^#/, '') || cells[1]?.textContent?.trim()?.replace(/^#/, '');
-        if (name) results.push(name.toLowerCase());
+        const name = (link?.textContent || cells[1]?.textContent || '')
+          .trim().replace(/^#/, '').toLowerCase();
+        if (name) results.push(name);
       });
       return results;
     });
 
-    console.log(`   → ${hashtags.length} hashtags récupérés depuis best-hashtags.php`);
+    console.log(`   → ${hashtags.length} hashtags récupérés`);
     return hashtags;
-
   } catch (e) {
-    console.warn(`   ⚠️  Erreur best-hashtags.php: ${e.message}`);
+    console.warn(`   ⚠️  Erreur: ${e.message}`);
     return [];
   }
 }
 
 // ---------------------------------------------------------------------------
-// ÉTAPE 2 : Filtre par mots-clés collégiens
+// ÉTAPE 2 — Filtre collégiens
 // ---------------------------------------------------------------------------
 function filterCollegeHashtags(hashtags) {
-  console.log('\n🎯 ÉTAPE 2 — Filtrage par mots-clés collégiens...');
+  console.log('\n🎯 ÉTAPE 2 — Filtre mots-clés collégiens...');
   const filtered = hashtags.filter(tag =>
-    COLLEGE_KEYWORDS.some(keyword => tag.includes(keyword))
+    COLLEGE_KEYWORDS.some(kw => tag.includes(kw))
   );
-  console.log(`   → ${filtered.length} hashtags collégiens détectés sur ${hashtags.length} au total`);
+  console.log(`   → ${filtered.length}/${hashtags.length} correspondances`);
   return filtered;
 }
 
 // ---------------------------------------------------------------------------
-// ÉTAPE 3 : Vérifie la popularité de chaque hashtag sur sa page de détail
+// ÉTAPE 3 — tiktokhashtags.com/hashtag/[tag]/ → vues & posts (tout-temps)
 // ---------------------------------------------------------------------------
-async function getHashtagDetails(page, hashtag) {
+async function getHashtagStats(page, hashtag) {
   try {
     await page.goto(`https://tiktokhashtags.com/hashtag/${encodeURIComponent(hashtag)}/`, {
       waitUntil: 'domcontentloaded',
       timeout: 30000,
     });
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(2500);
 
-    const details = await page.evaluate(() => {
-      // Les stats sont dans des boîtes colorées en haut de la page
-      // Structure générique : on cherche les grands chiffres affichés
-      const statBoxes = document.querySelectorAll('.card-body h3, .card-body .h3, .stat-box h3, .info-box h3, [class*="card"] h4, [class*="stat"] span');
-      const texts = Array.from(statBoxes).map(el => el.textContent?.trim()).filter(Boolean);
-
-      // Fallback : cherche tous les éléments qui ressemblent à des nombres grands
-      const allText = document.body.innerText;
-      
-      // Cherche "posts" et "views" dans le texte de la page
-      const postsMatch = allText.match(/(\d[\d,.\s]*[KMB]?)\s*(?:posts?|vidéos?)/i);
-      const viewsMatch = allText.match(/(\d[\d,.\s]*[KMB]?)\s*(?:views?|vues?)/i);
-
-      // Cherche aussi dans les éléments de stat stylisés
-      const bigNumbers = Array.from(document.querySelectorAll('h2, h3, h4, .display-4, .display-5, strong'))
-        .map(el => el.textContent?.trim())
-        .filter(t => /^[\d,.\s]+[KMBkmb]?$/.test(t || ''));
-
+    const { viewsRaw, postsRaw } = await page.evaluate(() => {
+      function getStatByLabel(label) {
+        const blocks = Array.from(document.querySelectorAll('.g-line-height-1'));
+        const block = blocks.find(el => {
+          const h4 = el.querySelector('h4, .h5');
+          return h4 && h4.innerText.toUpperCase().includes(label.toUpperCase());
+        });
+        return block?.querySelector('.g-font-size-26')?.innerText?.trim() || null;
+      }
       return {
-        rawTexts: texts.slice(0, 10),
-        postsRaw: postsMatch ? postsMatch[1] : null,
-        viewsRaw: viewsMatch ? viewsMatch[1] : null,
-        bigNumbers: bigNumbers.slice(0, 6),
-        pageTitle: document.title,
+        viewsRaw: getStatByLabel('Overall Views'),
+        postsRaw: getStatByLabel('Overall Posts'),
       };
     });
 
-    const views = parseCount(details.viewsRaw || details.bigNumbers[1] || details.bigNumbers[0] || '0');
-    const posts = parseCount(details.postsRaw || details.bigNumbers[0] || '0');
+    return {
+      views: parseCount(viewsRaw),
+      posts: parseCount(postsRaw),
+    };
+  } catch (e) {
+    return { views: 0, posts: 0 };
+  }
+}
 
-    return { views, posts, raw: details };
+// ---------------------------------------------------------------------------
+// ÉTAPE 4 — Google Trends → score d'actualité (7 derniers jours, France)
+// Retourne un score entre 0 et 100.
+// 0  = aucune recherche récente
+// 100 = pic maximum d'intérêt
+// ---------------------------------------------------------------------------
+async function getTrendScore(keyword) {
+  // Petite pause pour ne pas flooder Google
+  await new Promise(r => setTimeout(r, 1200));
+
+  try {
+    const raw = await googleTrends.interestOverTime({
+      keyword: keyword,   // on cherche le mot sans #
+      geo: 'FR',
+      startTime: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 7 jours
+      hl: 'fr',
+    });
+
+    const data = JSON.parse(raw);
+    const timeline = data?.default?.timelineData || [];
+
+    if (timeline.length === 0) return 0;
+
+    // Score moyen sur les 7 derniers jours
+    const values = timeline.map(d => d.value?.[0] ?? 0);
+    const avg = values.reduce((sum, v) => sum + v, 0) / values.length;
+    return Math.round(avg);
 
   } catch (e) {
-    console.warn(`   ⚠️  Impossible de charger la page pour #${hashtag}: ${e.message}`);
-    return { views: 0, posts: 0 };
+    // Google Trends peut bloquer ponctuellement — on retourne null (inconnu)
+    return null;
   }
 }
 
@@ -191,71 +211,84 @@ async function run() {
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
 
-  // Headers réalistes pour éviter le blocage
   await page.setExtraHTTPHeaders({
     'Accept-Language': 'fr-FR,fr;q=0.9,en;q=0.8',
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
   });
 
   try {
-    // --- ÉTAPE 1 : Récupère les hashtags populaires ---
+    // ÉTAPE 1 : liste brute
     const allHashtags = await getBestHashtags(page);
-
     if (allHashtags.length === 0) {
-      console.error('❌ Aucun hashtag récupéré — le site est peut-être inaccessible.');
+      console.error('❌ Aucun hashtag récupéré — site inaccessible ?');
       process.exit(1);
     }
 
-    // --- ÉTAPE 2 : Filtre collégiens ---
+    // ÉTAPE 2 : filtre collégiens
     let collegeHashtags = filterCollegeHashtags(allHashtags);
-
-    // Si trop peu de résultats (<3), on élargit et on prend les 10 premiers bruts
     if (collegeHashtags.length < 3) {
-      console.warn('   ⚠️  Peu de correspondances — on inclut aussi les 10 premiers hashtags globaux.');
+      console.warn('   ⚠️  Peu de matches — ajout des 10 premiers hashtags globaux en fallback.');
       const extras = allHashtags.slice(0, 10).filter(h => !collegeHashtags.includes(h));
       collegeHashtags = [...collegeHashtags, ...extras];
     }
 
-    // Limite à 15 hashtags max pour ne pas trop surcharger les requêtes
-    const toCheck = collegeHashtags.slice(0, 15);
+    const toCheck = collegeHashtags.slice(0, MAX_HASHTAGS);
 
-    // --- ÉTAPE 3 : Vérifie la popularité sur les pages de détail ---
-    console.log(`\n🔍 ÉTAPE 3 — Vérification de la popularité (${toCheck.length} hashtags)...`);
+    // ÉTAPE 3 : stats historiques (tiktokhashtags.com)
+    console.log(`\n📊 ÉTAPE 3 — Stats historiques sur tiktokhashtags.com (${toCheck.length} hashtags)...`);
+    const withStats = [];
+    for (const tag of toCheck) {
+      process.stdout.write(`   📈 #${tag} ... `);
+      const { views, posts } = await getHashtagStats(page, tag);
+      const hasMinViews = views >= MIN_VIEWS;
+      console.log(views > 0
+        ? `${(views / 1_000_000).toFixed(1)}M vues, ${posts.toLocaleString()} posts ${hasMinViews ? '✓' : '(faible)'}`
+        : `données indisponibles`
+      );
+      withStats.push({ tag, views, posts, hasMinViews });
+    }
+
+    // ÉTAPE 4 : score d'actualité Google Trends (7 jours, France)
+    console.log('\n🔥 ÉTAPE 4 — Vérification actualité Google Trends (7 jours, France)...');
     const results = [];
 
-    for (const tag of toCheck) {
-      process.stdout.write(`   🔎 #${tag} ... `);
-      const { views, posts } = await getHashtagDetails(page, tag);
+    for (const item of withStats) {
+      process.stdout.write(`   🌡️  #${item.tag} → score Trends : `);
+      const trendScore = await getTrendScore(item.tag);
 
-      const isPopular = views >= MIN_VIEWS || posts >= 10_000;
+      const scoreLabel = trendScore === null
+        ? 'inconnu ⚠️'
+        : `${trendScore}/100`;
 
-      console.log(
-        views > 0
-          ? `${(views / 1_000_000).toFixed(1)}M vues, ${posts.toLocaleString()} posts → ${isPopular ? '✅ PERTINENT' : '⛔ ignoré (trop petit)'}`
-          : 'données indisponibles → ⚠️ gardé par défaut'
-      );
+      const isTrending = trendScore === null || trendScore >= MIN_TREND_SCORE;
+      const status = isTrending ? '✅ ACTUEL' : '⛔ plus en vogue';
+      console.log(`${scoreLabel} → ${status}`);
 
-      if (isPopular || views === 0) {
+      if (isTrending) {
         results.push({
-          tag,
-          views: views > 0 ? views : null,
-          posts: posts > 0 ? posts : null,
-          category: getCategory(tag),
-          isPopular: views > 0 ? isPopular : null,
+          tag: item.tag,
+          views: item.views > 0 ? item.views : null,
+          posts: item.posts > 0 ? item.posts : null,
+          trendScore,                      // score Google Trends 0-100 (null = inconnu)
+          category: getCategory(item.tag),
         });
       }
     }
 
-    console.log(`\n📦 ${results.length} trends collégiens pertinents trouvés.`);
+    console.log(`\n📦 ${results.length} trends collégiens actuels retenus.`);
 
-    // Tri : d'abord les plus vus
-    results.sort((a, b) => (b.views || 0) - (a.views || 0));
+    // Tri : score Google Trends décroissant (les plus chauds en premier)
+    results.sort((a, b) => {
+      if (b.trendScore === null && a.trendScore === null) return 0;
+      if (b.trendScore === null) return -1;
+      if (a.trendScore === null) return 1;
+      return b.trendScore - a.trendScore;
+    });
 
     const output = {
       lastUpdate: new Date().toISOString(),
-      source: 'tiktokhashtags.com',
+      sources: ['tiktokhashtags.com', 'Google Trends (FR, 7j)'],
       filteredForCollege: true,
-      minViewsThreshold: MIN_VIEWS,
       trends: results,
     };
 
