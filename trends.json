@@ -1,66 +1,171 @@
 {
-  "lastUpdate": "2026-04-03T10:20:15.967Z",
+  "lastUpdate": "2026-04-03T10:46:50.478Z",
   "sources": [
-    "tiktokhashtags.com",
-    "Google Trends (FR, 7j)"
+    "tiktokhashtags.com (recherche par mot-clé)",
+    "Google Trends FR (90j)"
   ],
   "filteredForCollege": true,
+  "methodology": "Hashtags connexes aux mots-clés collégiens, actifs sur les 30 derniers jours en France",
   "trends": [
     {
-      "tag": "edit",
-      "views": 1200000000000,
-      "posts": 117700000,
-      "trendScore": 91,
+      "tag": "slay",
+      "views": 32400000000,
+      "posts": 4100000,
+      "trendScore": 56,
+      "isRising": true,
       "category": "Tendance ados"
     },
     {
-      "tag": "fyp",
-      "views": 52100000000000,
-      "posts": 766500000,
-      "trendScore": 90,
+      "tag": "detroit",
+      "views": 9400000000,
+      "posts": 961900,
+      "trendScore": 39,
+      "isRising": true,
       "category": "Tendance ados"
     },
     {
-      "tag": "viral",
-      "views": 20500000000000,
-      "posts": 2000000000,
-      "trendScore": 90,
-      "category": "Contenu viral"
-    },
-    {
-      "tag": "duet",
-      "views": 3400000000000,
-      "posts": 2100000000,
-      "trendScore": 88,
-      "category": "Contenu viral"
-    },
-    {
-      "tag": "capcut",
-      "views": 5500000000000,
-      "posts": null,
-      "trendScore": 86,
+      "tag": "looksmax",
+      "views": 1500000000,
+      "posts": 26600,
+      "trendScore": 38,
+      "isRising": true,
       "category": "Argot internet / Brainrot"
     },
     {
-      "tag": "pov",
-      "views": 1000000000000,
-      "posts": 50200000,
-      "trendScore": 86,
-      "category": "Contenu viral"
+      "tag": "delulu",
+      "views": 4700000000,
+      "posts": 340500,
+      "trendScore": 35,
+      "isRising": true,
+      "category": "Argot internet / Brainrot"
     },
     {
-      "tag": "asmr",
-      "views": 1000000000000,
-      "posts": 20800000,
-      "trendScore": 80,
+      "tag": "whatsup",
+      "views": 1200000000,
+      "posts": 252800,
+      "trendScore": 34,
+      "isRising": true,
       "category": "Tendance ados"
     },
     {
-      "tag": "stitch",
-      "views": 1200000000000,
-      "posts": 108900000,
-      "trendScore": 75,
+      "tag": "npcs",
+      "views": 470500000,
+      "posts": 17700,
+      "trendScore": 33,
+      "isRising": true,
+      "category": "Argot internet / Brainrot"
+    },
+    {
+      "tag": "looksmaxxing",
+      "views": 1400000000,
+      "posts": 40400,
+      "trendScore": 33,
+      "isRising": true,
+      "category": "Argot internet / Brainrot"
+    },
+    {
+      "tag": "foryou",
+      "views": 29000000000000,
+      "posts": 707500000,
+      "trendScore": 32,
+      "isRising": true,
       "category": "Tendance ados"
+    },
+    {
+      "tag": "mcpe",
+      "views": 7200000000,
+      "posts": 193900,
+      "trendScore": 30,
+      "isRising": true,
+      "category": "Tendance ados"
+    },
+    {
+      "tag": "mmd",
+      "views": 4000000000,
+      "posts": 176500,
+      "trendScore": 30,
+      "isRising": true,
+      "category": "Tendance ados"
+    },
+    {
+      "tag": "zhongli",
+      "views": 11300000000,
+      "posts": 821300,
+      "trendScore": 29,
+      "isRising": true,
+      "category": "Tendance ados"
+    },
+    {
+      "tag": "aurat",
+      "views": 781400000,
+      "posts": 71200,
+      "trendScore": 26,
+      "isRising": true,
+      "category": "Argot internet / Brainrot"
+    },
+    {
+      "tag": "mogging",
+      "views": 122900000,
+      "posts": 2900,
+      "trendScore": 26,
+      "isRising": true,
+      "category": "Argot internet / Brainrot"
+    },
+    {
+      "tag": "skibidi",
+      "views": 5400000000,
+      "posts": 177900,
+      "trendScore": 24,
+      "isRising": true,
+      "category": "Argot internet / Brainrot"
+    },
+    {
+      "tag": "gyatt",
+      "views": 1700000000,
+      "posts": 248000,
+      "trendScore": 23,
+      "isRising": true,
+      "category": "Argot internet / Brainrot"
+    },
+    {
+      "tag": "sussy",
+      "views": 2800000000,
+      "posts": 218400,
+      "trendScore": 23,
+      "isRising": true,
+      "category": "Argot internet / Brainrot"
+    },
+    {
+      "tag": "rizzler",
+      "views": 2500000000,
+      "posts": 138400,
+      "trendScore": 22,
+      "isRising": true,
+      "category": "Argot internet / Brainrot"
+    },
+    {
+      "tag": "gyat",
+      "views": 3300000000,
+      "posts": 534000,
+      "trendScore": 22,
+      "isRising": true,
+      "category": "Tendance ados"
+    },
+    {
+      "tag": "hernan",
+      "views": 67200000,
+      "posts": 8100,
+      "trendScore": 22,
+      "isRising": true,
+      "category": "Tendance ados"
+    },
+    {
+      "tag": "drifter",
+      "views": 1700000000,
+      "posts": 190100,
+      "trendScore": 22,
+      "isRising": true,
+      "category": "Danse / Emote"
     }
   ]
 }
