@@ -1,14 +1,17 @@
 {
-  "lastUpdate": "2026-04-03T09:38:39.610Z",
+  "lastUpdate": "2026-04-03T09:41:34.819Z",
   "trends": [
     {
-      "tag": "aprilfools"
+      "tag": "aprilfools",
+      "priority": 0
     },
     {
-      "tag": "april"
+      "tag": "april",
+      "priority": 0
     },
     {
-      "tag": "aprilfoolsday"
+      "tag": "aprilfoolsday",
+      "priority": 0
     }
   ]
 }
