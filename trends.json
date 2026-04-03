@@ -1,171 +1,312 @@
 {
-  "lastUpdate": "2026-04-03T10:46:50.478Z",
+  "lastUpdate": "2026-04-03T10:55:42.599Z",
   "sources": [
     "tiktokhashtags.com (recherche par mot-clé)",
-    "Google Trends FR (90j)"
+    "Google Trends FR (90j)",
+    "TikTok (vidéo exemple)"
   ],
   "filteredForCollege": true,
   "methodology": "Hashtags connexes aux mots-clés collégiens, actifs sur les 30 derniers jours en France",
   "trends": [
-    {
-      "tag": "slay",
-      "views": 32400000000,
-      "posts": 4100000,
-      "trendScore": 56,
-      "isRising": true,
-      "category": "Tendance ados"
-    },
-    {
-      "tag": "detroit",
-      "views": 9400000000,
-      "posts": 961900,
-      "trendScore": 39,
-      "isRising": true,
-      "category": "Tendance ados"
-    },
-    {
-      "tag": "looksmax",
-      "views": 1500000000,
-      "posts": 26600,
-      "trendScore": 38,
-      "isRising": true,
-      "category": "Argot internet / Brainrot"
-    },
-    {
-      "tag": "delulu",
-      "views": 4700000000,
-      "posts": 340500,
-      "trendScore": 35,
-      "isRising": true,
-      "category": "Argot internet / Brainrot"
-    },
-    {
-      "tag": "whatsup",
-      "views": 1200000000,
-      "posts": 252800,
-      "trendScore": 34,
-      "isRising": true,
-      "category": "Tendance ados"
-    },
-    {
-      "tag": "npcs",
-      "views": 470500000,
-      "posts": 17700,
-      "trendScore": 33,
-      "isRising": true,
-      "category": "Argot internet / Brainrot"
-    },
-    {
-      "tag": "looksmaxxing",
-      "views": 1400000000,
-      "posts": 40400,
-      "trendScore": 33,
-      "isRising": true,
-      "category": "Argot internet / Brainrot"
-    },
     {
       "tag": "foryou",
       "views": 29000000000000,
       "posts": 707500000,
       "trendScore": 32,
       "isRising": true,
-      "category": "Tendance ados"
+      "category": "Tendance ados",
+      "exampleVideo": {
+        "author": "@arsalan8650",
+        "videoId": "7624472080624422162",
+        "videoUrl": "https://www.tiktok.com/@arsalan8650/video/7624472080624422162",
+        "description": "arsalan8650",
+        "embedUrl": "https://www.tiktok.com/embed/v2/7624472080624422162"
+      }
     },
     {
-      "tag": "mcpe",
-      "views": 7200000000,
-      "posts": 193900,
-      "trendScore": 30,
-      "isRising": true,
-      "category": "Tendance ados"
+      "tag": "meme",
+      "views": 1200000000000,
+      "posts": 50600000,
+      "trendScore": 88,
+      "isRising": false,
+      "category": "Tendance ados",
+      "exampleVideo": {
+        "author": "@xyriozz",
+        "videoId": "7623156181447593246",
+        "videoUrl": "https://www.tiktok.com/@xyriozz/video/7623156181447593246",
+        "description": "xyriozz",
+        "embedUrl": "https://www.tiktok.com/embed/v2/7623156181447593246"
+      }
     },
     {
-      "tag": "mmd",
-      "views": 4000000000,
-      "posts": 176500,
-      "trendScore": 30,
-      "isRising": true,
-      "category": "Tendance ados"
+      "tag": "youtube",
+      "views": 289000000000,
+      "posts": 25900000,
+      "trendScore": 84,
+      "isRising": false,
+      "category": "Tendance ados",
+      "exampleVideo": {
+        "author": "@sophie_axelson",
+        "videoId": "7624231599667760415",
+        "videoUrl": "https://www.tiktok.com/@sophie_axelson/video/7624231599667760415",
+        "description": "sophie_axelson",
+        "embedUrl": "https://www.tiktok.com/embed/v2/7624231599667760415"
+      }
     },
     {
-      "tag": "zhongli",
-      "views": 11300000000,
-      "posts": 821300,
-      "trendScore": 29,
-      "isRising": true,
-      "category": "Tendance ados"
+      "tag": "tiktok",
+      "views": 6400000000000,
+      "posts": 1100000000,
+      "trendScore": 78,
+      "isRising": false,
+      "category": "Tendance ados",
+      "exampleVideo": {
+        "author": "@brishtiakterofficial",
+        "videoId": "7624473728046337301",
+        "videoUrl": "https://www.tiktok.com/@brishtiakterofficial/video/7624473728046337301",
+        "description": "brishtiakterofficial",
+        "embedUrl": "https://www.tiktok.com/embed/v2/7624473728046337301"
+      }
     },
     {
-      "tag": "aurat",
-      "views": 781400000,
-      "posts": 71200,
-      "trendScore": 26,
-      "isRising": true,
-      "category": "Argot internet / Brainrot"
+      "tag": "capcut",
+      "views": 5000000000000,
+      "posts": 975900000,
+      "trendScore": 77,
+      "isRising": false,
+      "category": "Argot internet / Brainrot",
+      "exampleVideo": {
+        "author": "@_lucia_felicia",
+        "videoId": "7624466380456348960",
+        "videoUrl": "https://www.tiktok.com/@_lucia_felicia/video/7624466380456348960",
+        "description": "_lucia_felicia",
+        "embedUrl": "https://www.tiktok.com/embed/v2/7624466380456348960"
+      }
     },
     {
-      "tag": "mogging",
-      "views": 122900000,
-      "posts": 2900,
-      "trendScore": 26,
-      "isRising": true,
-      "category": "Argot internet / Brainrot"
+      "tag": "anime",
+      "views": 1500000000000,
+      "posts": 123900000,
+      "trendScore": 70,
+      "isRising": false,
+      "category": "Tendance ados",
+      "exampleVideo": {
+        "author": "@theanimemen",
+        "videoId": "7448762972291222826",
+        "videoUrl": "https://www.tiktok.com/@theanimemen/video/7448762972291222826",
+        "description": "theanimemen",
+        "embedUrl": "https://www.tiktok.com/embed/v2/7448762972291222826"
+      }
     },
     {
-      "tag": "skibidi",
-      "views": 5400000000,
-      "posts": 177900,
-      "trendScore": 24,
-      "isRising": true,
-      "category": "Argot internet / Brainrot"
+      "tag": "pov",
+      "views": 1000000000000,
+      "posts": 50200000,
+      "trendScore": 70,
+      "isRising": false,
+      "category": "Contenu viral",
+      "exampleVideo": {
+        "author": "@louisandmelo",
+        "videoId": "7100296335630306566",
+        "videoUrl": "https://www.tiktok.com/@louisandmelo/video/7100296335630306566",
+        "description": "louisandmelo",
+        "embedUrl": "https://www.tiktok.com/embed/v2/7100296335630306566"
+      }
     },
     {
-      "tag": "gyatt",
-      "views": 1700000000,
-      "posts": 248000,
-      "trendScore": 23,
-      "isRising": true,
-      "category": "Argot internet / Brainrot"
+      "tag": "gaming",
+      "views": 516900000000,
+      "posts": 36000000,
+      "trendScore": 68,
+      "isRising": false,
+      "category": "Gaming",
+      "exampleVideo": {
+        "author": "@reidboehm",
+        "videoId": "7623882945975160077",
+        "videoUrl": "https://www.tiktok.com/@reidboehm/video/7623882945975160077",
+        "description": "reidboehm",
+        "embedUrl": "https://www.tiktok.com/embed/v2/7623882945975160077"
+      }
     },
     {
-      "tag": "sussy",
-      "views": 2800000000,
-      "posts": 218400,
-      "trendScore": 23,
-      "isRising": true,
-      "category": "Argot internet / Brainrot"
+      "tag": "asmr",
+      "views": 937500000000,
+      "posts": 18800000,
+      "trendScore": 66,
+      "isRising": false,
+      "category": "Tendance ados",
+      "exampleVideo": {
+        "author": "@safespaceasmr",
+        "videoId": "7624272491023830303",
+        "videoUrl": "https://www.tiktok.com/@safespaceasmr/video/7624272491023830303",
+        "description": "safespaceasmr",
+        "embedUrl": "https://www.tiktok.com/embed/v2/7624272491023830303"
+      }
     },
     {
-      "tag": "rizzler",
-      "views": 2500000000,
-      "posts": 138400,
-      "trendScore": 22,
-      "isRising": true,
-      "category": "Argot internet / Brainrot"
+      "tag": "fortnite",
+      "views": 466800000000,
+      "posts": 55300000,
+      "trendScore": 62,
+      "isRising": false,
+      "category": "Gaming",
+      "exampleVideo": {
+        "author": "@cherryblossomi",
+        "videoId": "7623744716898569504",
+        "videoUrl": "https://www.tiktok.com/@cherryblossomi/video/7623744716898569504",
+        "description": "cherryblossomi",
+        "embedUrl": "https://www.tiktok.com/embed/v2/7623744716898569504"
+      }
     },
     {
-      "tag": "gyat",
-      "views": 3300000000,
-      "posts": 534000,
-      "trendScore": 22,
-      "isRising": true,
-      "category": "Tendance ados"
+      "tag": "music",
+      "views": 691200000000,
+      "posts": 72900000,
+      "trendScore": 60,
+      "isRising": false,
+      "category": "Tendance ados",
+      "exampleVideo": {
+        "author": "@01.93.h",
+        "videoId": "7623871130348162312",
+        "videoUrl": "https://www.tiktok.com/@01.93.h/video/7623871130348162312",
+        "description": "01.93.h",
+        "embedUrl": "https://www.tiktok.com/embed/v2/7623871130348162312"
+      }
     },
     {
-      "tag": "hernan",
-      "views": 67200000,
-      "posts": 8100,
-      "trendScore": 22,
-      "isRising": true,
-      "category": "Tendance ados"
+      "tag": "respect",
+      "views": 248600000000,
+      "posts": 9000000,
+      "trendScore": 60,
+      "isRising": false,
+      "category": "Tendance ados",
+      "exampleVideo": {
+        "author": "@martinez_motivation",
+        "videoId": "7287295138479705390",
+        "videoUrl": "https://www.tiktok.com/@martinez_motivation/video/7287295138479705390",
+        "description": "martinez_motivation",
+        "embedUrl": "https://www.tiktok.com/embed/v2/7287295138479705390"
+      }
     },
     {
-      "tag": "drifter",
-      "views": 1700000000,
-      "posts": 190100,
-      "trendScore": 22,
-      "isRising": true,
-      "category": "Danse / Emote"
+      "tag": "tutorial",
+      "views": 414600000000,
+      "posts": 10400000,
+      "trendScore": 59,
+      "isRising": false,
+      "category": "Tendance ados",
+      "exampleVideo": {
+        "author": "@rgfa12514787",
+        "videoId": "7624162236994506015",
+        "videoUrl": "https://www.tiktok.com/@rgfa12514787/video/7624162236994506015",
+        "description": "rgfa12514787",
+        "embedUrl": "https://www.tiktok.com/embed/v2/7624162236994506015"
+      }
+    },
+    {
+      "tag": "motivation",
+      "views": 374300000000,
+      "posts": 40500000,
+      "trendScore": 55,
+      "isRising": false,
+      "category": "Tendance ados",
+      "exampleVideo": {
+        "author": "@kindpush343",
+        "videoId": "7623490239415209219",
+        "videoUrl": "https://www.tiktok.com/@kindpush343/video/7623490239415209219",
+        "description": "kindpush343",
+        "embedUrl": "https://www.tiktok.com/embed/v2/7623490239415209219"
+      }
+    },
+    {
+      "tag": "roblox",
+      "views": 489600000000,
+      "posts": 62400000,
+      "trendScore": 54,
+      "isRising": false,
+      "category": "Gaming",
+      "exampleVideo": {
+        "author": "@mrmufunim",
+        "videoId": "7624339448188243213",
+        "videoUrl": "https://www.tiktok.com/@mrmufunim/video/7624339448188243213",
+        "description": "mrmufunim",
+        "embedUrl": "https://www.tiktok.com/embed/v2/7624339448188243213"
+      }
+    },
+    {
+      "tag": "gym",
+      "views": 420400000000,
+      "posts": 35900000,
+      "trendScore": 54,
+      "isRising": false,
+      "category": "Tendance ados",
+      "exampleVideo": {
+        "author": "@the.hole.motivati",
+        "videoId": "7602091911091866893",
+        "videoUrl": "https://www.tiktok.com/@the.hole.motivati/video/7602091911091866893",
+        "description": "the.hole.motivati",
+        "embedUrl": "https://www.tiktok.com/embed/v2/7602091911091866893"
+      }
+    },
+    {
+      "tag": "car",
+      "views": 250800000000,
+      "posts": 15300000,
+      "trendScore": 54,
+      "isRising": false,
+      "category": "Tendance ados",
+      "exampleVideo": {
+        "author": "@letsdriveit",
+        "videoId": "7083210331136314666",
+        "videoUrl": "https://www.tiktok.com/@letsdriveit/video/7083210331136314666",
+        "description": "letsdriveit",
+        "embedUrl": "https://www.tiktok.com/embed/v2/7083210331136314666"
+      }
+    },
+    {
+      "tag": "trend",
+      "views": 2300000000000,
+      "posts": 264400000,
+      "trendScore": 52,
+      "isRising": false,
+      "category": "Tendance ados",
+      "exampleVideo": {
+        "author": "@madisonknowsbest",
+        "videoId": "7560684469435288862",
+        "videoUrl": "https://www.tiktok.com/@madisonknowsbest/video/7560684469435288862",
+        "description": "madisonknowsbest",
+        "embedUrl": "https://www.tiktok.com/embed/v2/7560684469435288862"
+      }
+    },
+    {
+      "tag": "gamer",
+      "views": 215800000000,
+      "posts": 20200000,
+      "trendScore": 52,
+      "isRising": false,
+      "category": "Gaming",
+      "exampleVideo": {
+        "author": "@micdeess",
+        "videoId": "7624429154703887647",
+        "videoUrl": "https://www.tiktok.com/@micdeess/video/7624429154703887647",
+        "description": "micdeess",
+        "embedUrl": "https://www.tiktok.com/embed/v2/7624429154703887647"
+      }
+    },
+    {
+      "tag": "cars",
+      "views": 203300000000,
+      "posts": 13400000,
+      "trendScore": 51,
+      "isRising": false,
+      "category": "Tendance ados",
+      "exampleVideo": {
+        "author": "@letsdriveit",
+        "videoId": "7083210331136314666",
+        "videoUrl": "https://www.tiktok.com/@letsdriveit/video/7083210331136314666",
+        "description": "letsdriveit",
+        "embedUrl": "https://www.tiktok.com/embed/v2/7083210331136314666"
+      }
     }
   ]
 }
