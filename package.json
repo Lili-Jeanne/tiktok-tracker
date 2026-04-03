@@ -2,9 +2,10 @@
   "name": "tiktok-trend-scraper",
   "version": "1.0.0",
   "dependencies": {
+    "dotenv": "^17.4.0",
+    "google-trends-api": "^4.9.2",
     "playwright": "^1.40.0",
     "playwright-extra": "^3.0.0",
-    "puppeteer-extra-plugin-stealth": "^2.11.0",
-    "google-trends-api": "^4.9.2"
+    "puppeteer-extra-plugin-stealth": "^2.11.0"
   }
 }

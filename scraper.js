@@ -1,3 +1,4 @@
+require('dotenv').config();
 const { chromium } = require('playwright-extra');
 const stealth = require('puppeteer-extra-plugin-stealth')();
 const googleTrends = require('google-trends-api');
