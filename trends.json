@@ -1,50 +1,66 @@
 {
-  "lastUpdate": "2026-04-03T10:11:28.690Z",
-  "source": "tiktokhashtags.com",
+  "lastUpdate": "2026-04-03T10:20:15.967Z",
+  "sources": [
+    "tiktokhashtags.com",
+    "Google Trends (FR, 7j)"
+  ],
   "filteredForCollege": true,
-  "minViewsThreshold": 1000000,
   "trends": [
     {
-      "tag": "asmr",
-      "views": 51,
-      "posts": 78259,
-      "category": "Tendance ados",
-      "isPopular": true
+      "tag": "edit",
+      "views": 1200000000000,
+      "posts": 117700000,
+      "trendScore": 91,
+      "category": "Tendance ados"
     },
     {
-      "tag": "stitch",
-      "views": 49,
-      "posts": 10816,
-      "category": "Tendance ados",
-      "isPopular": true
+      "tag": "fyp",
+      "views": 52100000000000,
+      "posts": 766500000,
+      "trendScore": 90,
+      "category": "Tendance ados"
     },
     {
-      "tag": "xuhuong",
-      "views": 48,
-      "posts": 77786,
-      "category": "Argot internet / Brainrot",
-      "isPopular": true
-    },
-    {
-      "tag": "collagestitch",
-      "views": 10,
-      "posts": 10886,
-      "category": "Tendance ados",
-      "isPopular": true
-    },
-    {
-      "tag": "maestridelpov",
-      "views": 8,
-      "posts": 26746,
-      "category": "Contenu viral",
-      "isPopular": true
+      "tag": "viral",
+      "views": 20500000000000,
+      "posts": 2000000000,
+      "trendScore": 90,
+      "category": "Contenu viral"
     },
     {
       "tag": "duet",
-      "views": 6,
-      "posts": 13051,
-      "category": "Contenu viral",
-      "isPopular": true
+      "views": 3400000000000,
+      "posts": 2100000000,
+      "trendScore": 88,
+      "category": "Contenu viral"
+    },
+    {
+      "tag": "capcut",
+      "views": 5500000000000,
+      "posts": null,
+      "trendScore": 86,
+      "category": "Argot internet / Brainrot"
+    },
+    {
+      "tag": "pov",
+      "views": 1000000000000,
+      "posts": 50200000,
+      "trendScore": 86,
+      "category": "Contenu viral"
+    },
+    {
+      "tag": "asmr",
+      "views": 1000000000000,
+      "posts": 20800000,
+      "trendScore": 80,
+      "category": "Tendance ados"
+    },
+    {
+      "tag": "stitch",
+      "views": 1200000000000,
+      "posts": 108900000,
+      "trendScore": 75,
+      "category": "Tendance ados"
     }
   ]
 }
